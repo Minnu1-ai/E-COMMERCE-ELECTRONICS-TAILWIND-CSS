@@ -63,9 +63,9 @@ function Cart() {
   return (
     <main className="max-w-[1200px] mx-auto px-5 py-10 flex flex-col gap-10">
       {/* Hero */}
-      <section className="text-center">
-        <h1 className="text-5xl font-extrabold text-slate-900 mb-3 mt-0 leading-tight">Your Cart</h1>
-        <p className="text-slate-600 leading-relaxed m-0">Review your items before checkout.</p>
+      <section className="bg-slate-700 rounded-2xl px-10 py-14 text-center text-white">
+        <h1 className="text-5xl font-extrabold text-white mb-3 mt-0 leading-tight">Your Cart</h1>
+        <p className="text-slate-300 text-lg leading-relaxed m-0">Review your items before checkout.</p>
       </section>
 
       {/* Layout */}

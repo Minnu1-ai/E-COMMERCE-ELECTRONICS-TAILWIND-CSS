@@ -10,23 +10,45 @@ const getCartCount = (): number => {
   }
 };
 
+const getInitialDark = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const stored = localStorage.getItem('theme');
+  if (stored) return stored === 'dark';
+  return document.documentElement.classList.contains('dark');
+};
+
 function Navbar() {
   const [menuOpen, setMenuOpen]       = useState(false);
   const [searchOpen, setSearchOpen]   = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [cartCount, setCartCount]     = useState(getCartCount);
+  const [isDark, setIsDark]           = useState(getInitialDark);
   const searchInputRef                = useRef<HTMLInputElement>(null);
   const navigate                      = useNavigate();
 
   const activeClass = ({ isActive }: { isActive: boolean }) =>
     isActive
       ? 'text-brand-primary font-semibold'
-      : 'text-slate-600 font-medium hover:text-brand-primary transition-colors duration-300';
+      : 'text-slate-600 dark:text-slate-300 font-medium hover:text-brand-primary transition-colors duration-300';
 
-  const toggleMenu  = () => setMenuOpen((o) => !o);
-  const closeMenu   = () => setMenuOpen(false);
+  const toggleMenu = () => setMenuOpen((o) => !o);
+  const closeMenu  = () => setMenuOpen(false);
 
-  const openSearch = (e: React.MouseEvent) => {
+  const toggleDark = () => {
+    setIsDark((prev) => {
+      const next = !prev;
+      if (next) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+      return next;
+    });
+  };
+
+  const openSearch  = (e: React.MouseEvent) => {
     e.preventDefault();
     setSearchOpen(true);
     setTimeout(() => searchInputRef.current?.focus(), 50);
@@ -36,10 +58,7 @@ function Navbar() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const q = searchQuery.trim();
-    if (q) {
-      closeSearch();
-      navigate(`/shop?search=${encodeURIComponent(q)}`);
-    }
+    if (q) { closeSearch(); navigate(`/shop?search=${encodeURIComponent(q)}`); }
   };
 
   useEffect(() => {
@@ -64,10 +83,30 @@ function Navbar() {
     };
   }, []);
 
+  /* sync isDark if changed on the Theme page */
+  useEffect(() => {
+    const sync = () => setIsDark(document.documentElement.classList.contains('dark'));
+    window.addEventListener('storage', sync);
+    return () => window.removeEventListener('storage', sync);
+  }, []);
+
+  const iconBtn = "inline-flex items-center justify-center w-11 h-11 rounded-full text-slate-600 dark:text-slate-300 hover:bg-bg-main dark:hover:bg-slate-700 hover:text-brand-primary transition-all duration-300";
+
+  const navLinks = [
+    { to: '/',          label: 'Home',      end: true },
+    { to: '/shop',      label: 'Shop' },
+    { to: '/about',     label: 'About' },
+    { to: '/reviews',   label: 'Reviews' },
+    { to: '/contact',   label: 'Contact' },
+    { to: '/dashboard', label: 'Dashboard' },
+    { to: '/login',     label: 'Login' },
+  ];
+
   return (
     <>
-      <header className="sticky top-0 z-[1000] bg-white border-b border-slate-200 transition-shadow duration-300">
+      <header className="sticky top-0 z-[1000] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 transition-all duration-300">
         <nav className="flex justify-between items-center px-[30px] py-[15px] max-w-[1400px] mx-auto w-full relative">
+
           {/* Logo */}
           <NavLink to="/" className="flex items-center gap-3 text-2xl font-bold text-brand-secondary no-underline" onClick={closeMenu}>
             <div className="w-[42px] h-[42px] rounded-xl flex items-center justify-center bg-brand-primary text-white font-extrabold text-base flex-shrink-0">
@@ -76,10 +115,10 @@ function Navbar() {
             <span className="tracking-tight">TechHaven</span>
           </NavLink>
 
-          {/* Hamburger */}
+          {/* Hamburger (mobile) */}
           <button
             type="button"
-            className="md:hidden bg-transparent border-none text-2xl text-slate-800 cursor-pointer p-0 flex items-center justify-center"
+            className="md:hidden bg-transparent border-none text-2xl text-slate-800 dark:text-slate-200 cursor-pointer p-0 flex items-center justify-center"
             aria-expanded={menuOpen}
             aria-label="Toggle navigation menu"
             onClick={toggleMenu}
@@ -89,21 +128,38 @@ function Navbar() {
 
           {/* Desktop nav links */}
           <ul className="hidden md:flex gap-[30px] items-center list-none p-0 m-0">
-            <li><NavLink to="/" end className={activeClass} onClick={closeMenu}>Home</NavLink></li>
-            <li><NavLink to="/shop" className={activeClass} onClick={closeMenu}>Shop</NavLink></li>
-            <li><NavLink to="/contact" className={activeClass} onClick={closeMenu}>Contact</NavLink></li>
-            <li><NavLink to="/dashboard" className={activeClass} onClick={closeMenu}>Dashboard</NavLink></li>
-            <li className="flex gap-[18px] items-center">
-              <a href="#" aria-label="Search" onClick={openSearch}
-                className="inline-flex items-center justify-center w-11 h-11 rounded-full text-slate-600 hover:bg-bg-main hover:text-brand-primary transition-all duration-300">
+            {navLinks.map((link) => (
+              <li key={link.to}>
+                <NavLink to={link.to} end={link.end} className={activeClass} onClick={closeMenu}>
+                  {link.label}
+                </NavLink>
+              </li>
+            ))}
+
+            {/* Icon group */}
+            <li className="flex gap-[14px] items-center">
+              {/* Search */}
+              <a href="#" aria-label="Search" onClick={openSearch} className={iconBtn}>
                 <i className="fas fa-search text-base" aria-hidden="true" />
               </a>
-              <NavLink to="/login" onClick={closeMenu} aria-label="User account"
-                className="inline-flex items-center justify-center w-11 h-11 rounded-full text-slate-600 hover:bg-bg-main hover:text-brand-primary transition-all duration-300">
+
+              {/* Dark mode toggle */}
+              <button
+                type="button"
+                aria-label="Toggle dark mode"
+                onClick={toggleDark}
+                className={`${iconBtn} border-none cursor-pointer`}
+              >
+                <i className={`fas ${isDark ? 'fa-sun text-amber-400' : 'fa-moon'} text-base`} aria-hidden="true" />
+              </button>
+
+              {/* Profile */}
+              <NavLink to="/profile" onClick={closeMenu} aria-label="User profile" className={iconBtn}>
                 <i className="fas fa-user text-base" aria-hidden="true" />
               </NavLink>
-              <NavLink to="/cart" onClick={closeMenu} aria-label="View cart"
-                className="inline-flex items-center justify-center w-11 h-11 rounded-full text-slate-600 hover:bg-bg-main hover:text-brand-primary transition-all duration-300 relative">
+
+              {/* Cart */}
+              <NavLink to="/cart" onClick={closeMenu} aria-label="View cart" className={`${iconBtn} relative`}>
                 <i className="fas fa-shopping-cart text-base" aria-hidden="true" />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
@@ -115,25 +171,24 @@ function Navbar() {
           </ul>
 
           {/* Mobile menu */}
-          <ul className={`md:hidden flex flex-col absolute top-full left-0 w-full bg-white border-b border-slate-200 overflow-hidden transition-all duration-300 shadow-lg z-50 list-none p-0 m-0 ${menuOpen ? 'max-h-[500px] opacity-100 py-4 px-5' : 'max-h-0 opacity-0'}`}>
-            <li className="w-full text-center py-3 border-b border-slate-100">
-              <NavLink to="/" end className={activeClass} onClick={closeMenu}>Home</NavLink>
-            </li>
-            <li className="w-full text-center py-3 border-b border-slate-100">
-              <NavLink to="/shop" className={activeClass} onClick={closeMenu}>Shop</NavLink>
-            </li>
-            <li className="w-full text-center py-3 border-b border-slate-100">
-              <NavLink to="/contact" className={activeClass} onClick={closeMenu}>Contact</NavLink>
-            </li>
-            <li className="w-full text-center py-3 border-b border-slate-100">
-              <NavLink to="/dashboard" className={activeClass} onClick={closeMenu}>Dashboard</NavLink>
-            </li>
+          <ul className={`md:hidden flex flex-col absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 overflow-hidden transition-all duration-300 shadow-lg z-50 list-none p-0 m-0 ${menuOpen ? 'max-h-[600px] opacity-100 py-4 px-5' : 'max-h-0 opacity-0'}`}>
+            {navLinks.map((link) => (
+              <li key={link.to} className="w-full text-center py-3 border-b border-slate-100 dark:border-slate-800">
+                <NavLink to={link.to} end={link.end} className={activeClass} onClick={closeMenu}>
+                  {link.label}
+                </NavLink>
+              </li>
+            ))}
             <li className="w-full flex justify-center gap-2 pt-2 pb-1">
               <a href="#" aria-label="Search" onClick={openSearch}
                 className="flex items-center justify-center w-11 h-11 rounded-full bg-bg-main text-slate-600 text-lg hover:bg-brand-primary hover:text-white transition-all duration-300">
                 <i className="fas fa-search" />
               </a>
-              <NavLink to="/login" onClick={closeMenu} aria-label="User account"
+              <button type="button" aria-label="Toggle dark mode" onClick={toggleDark}
+                className="flex items-center justify-center w-11 h-11 rounded-full bg-bg-main text-slate-600 text-lg hover:bg-brand-primary hover:text-white transition-all duration-300 border-none cursor-pointer">
+                <i className={`fas ${isDark ? 'fa-sun text-amber-400' : 'fa-moon'}`} />
+              </button>
+              <NavLink to="/profile" onClick={closeMenu} aria-label="User profile"
                 className="flex items-center justify-center w-11 h-11 rounded-full bg-bg-main text-slate-600 text-lg hover:bg-brand-primary hover:text-white transition-all duration-300">
                 <i className="fas fa-user" />
               </NavLink>

@@ -154,9 +154,9 @@ function Shop() {
   return (
     <main className="max-w-[1200px] mx-auto px-5 py-10 flex flex-col gap-10">
       {/* Hero */}
-      <section className="text-center">
-        <h1 className="text-5xl font-extrabold text-slate-900 mb-4 mt-0 leading-tight">Our Products</h1>
-        <p className="text-slate-600 leading-relaxed mb-0 mt-0">Explore the best tech on the market.</p>
+      <section className="bg-slate-700 rounded-2xl px-10 py-14 text-center text-white">
+        <h1 className="text-5xl font-extrabold text-white mb-3 mt-0 leading-tight">Our Products</h1>
+        <p className="text-slate-300 text-lg leading-relaxed m-0">Explore the best tech on the market.</p>
       </section>
 
       {/* Layout */}

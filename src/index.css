@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg-main text-slate-900 font-sans antialiased transition-colors duration-300;
+  }
+
+  #root {
+    @apply min-h-screen flex flex-col;
+  }
+
+  /* Dark theme */
+  .dark body {
+    @apply bg-slate-900 text-slate-100;
+  }
+
+  .dark #root {
+    @apply bg-slate-900;
+  }
+}

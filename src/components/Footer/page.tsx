@@ -20,9 +20,13 @@ function Footer() {
         {/* Quick Links */}
         <div className="flex flex-col gap-4 w-[250px]">
           <h4 className="text-white font-semibold text-xl mb-2 mt-0">Quick Links</h4>
-          <Link to="/about" className="text-slate-400 hover:text-brand-primary transition-colors duration-300 no-underline">About Us</Link>
+          <Link to="/about"   className="text-slate-400 hover:text-brand-primary transition-colors duration-300 no-underline">About Us</Link>
+          <Link to="/reviews" className="text-slate-400 hover:text-brand-primary transition-colors duration-300 no-underline">Reviews</Link>
           <Link to="/contact" className="text-slate-400 hover:text-brand-primary transition-colors duration-300 no-underline">Contact Us</Link>
-          <Link to="/blog" className="text-slate-400 hover:text-brand-primary transition-colors duration-300 no-underline">Blog</Link>
+          <Link to="/blog"    className="text-slate-400 hover:text-brand-primary transition-colors duration-300 no-underline">Blog</Link>
+          <Link to="/theme"   className="text-slate-400 hover:text-brand-primary transition-colors duration-300 no-underline">
+            <i className="fas fa-adjust mr-1.5"></i>Dark / Light Mode
+          </Link>
         </div>
 
         {/* Categories */}

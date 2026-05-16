@@ -35,6 +35,12 @@ function Product() {
 
   return (
     <main className="max-w-[1200px] mx-auto px-5 py-10 flex flex-col gap-10">
+      {/* Hero */}
+      <section className="bg-slate-700 rounded-2xl px-10 py-14 text-center text-white">
+        <h1 className="text-5xl font-extrabold text-white mb-3 mt-0 leading-tight">Product Details</h1>
+        <p className="text-slate-300 text-lg leading-relaxed m-0">Everything you need to know before you buy.</p>
+      </section>
+
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-slate-500">
         <Link to="/" className="hover:text-brand-primary transition-colors duration-300 no-underline text-slate-500">Home</Link>
